@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Validator;
 use App\User;
-
+use Validator;
+use Illuminate\Http\Request;
+use App\Services\UserService;
 
 class RegisterController extends Controller
 {
-
+	public function __construct(UserService $userservice)
+    {
+        $this->userservice = $userservice;
+    }
 	
 	/**
-     * validating the input data
+     * Validating the input data
      *
      * @param $request      
      * @return JSON Response    
@@ -30,13 +33,7 @@ class RegisterController extends Controller
             $message = $validator->errors();            
         }
         else { 
-				$user = new User(); 
-				$user->username = $request['username']; 
-				$user->email = $request['email']; 
-				$user->password = md5($request['password']); 
-				$user->age = $request['age']; 
-				$user->save();		
-				$message ='Saved';	
+        	$message = $this->userservice->store($request); 
 		}
 
         return response()->json($message);
