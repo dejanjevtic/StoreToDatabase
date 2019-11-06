@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Validator;
+use App\User;
+
 
 class RegisterController extends Controller
 {
-
 
 	
 	/**
@@ -19,18 +20,25 @@ class RegisterController extends Controller
     public function register(Request $request){
     	
     	 $validator = Validator::make($request->all(), [
-    	 	'username' => 'required|max:15',
-            'email' => 'required|email|max:255',
+    	 	'username' => 'required|unique:users|max:15',
+            'email' => 'required|email|unique:users|max:255',
             'password' => 'required|max:15',
             'age' => 'required|numeric|min:18|max:99'
         ]);
 
         if ($validator->fails()) {
-            $message = $validator->errors();
-            
+            $message = $validator->errors();            
         }
-        else $message = 'OK';
+        else { 
+				$user = new User(); 
+				$user->username = $request['username']; 
+				$user->email = $request['email']; 
+				$user->password = md5($request['password']); 
+				$user->age = $request['age']; 
+				$user->save();		
+				$message ='Saved';	
+		}
 
-        return $message;
+        return response()->json($message);
     }
 }
